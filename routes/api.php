@@ -16,3 +16,10 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::prefix('repositorio')->group(function () {
+    Route::get('/mostrar/{id}', 'RepositorioController@index');
+    Route::post('/crear', 'RepositorioController@store');
+    Route::delete('/destruir', 'RepositorioController@destroy');
+    Route::post('/almacenar', 'RepositorioController@upload');
+});
