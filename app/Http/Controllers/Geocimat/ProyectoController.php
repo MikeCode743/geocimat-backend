@@ -1,14 +1,21 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Geocimat;
 
-use App\Clasificacion;
-use App\Proyecto;
+use App\Models\Geocimat\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Controller;
 
 class ProyectoController extends Controller
 {
+
+     public function __construct()
+    {
+
+    }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -28,9 +35,7 @@ class ProyectoController extends Controller
      */
     public function create()
     {
-        $clasificaciones = Clasificacion::all();
-        // dd($clasificaciones);
-        return response()->json(['clasificaciones' => $clasificaciones]);
+       
     }
 
     /**
@@ -41,8 +46,10 @@ class ProyectoController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
+        dd($request);
+
         //REEMPLAZA ESPACION Y CARACTERES DE ESPACIO POR GUION 
+
         $titulo = preg_replace('/\s+/', ' ', $request->nombre);
         $titulo = str_replace(" ", "-", $titulo);
 
@@ -56,10 +63,11 @@ class ProyectoController extends Controller
         $identificador =  $titulo . "-" . generateRandomString();
 
         //VALIDACION DE DIRECTORIO Y NOMBRE DUPLICADO
-        if (Proyecto::where('identificador', '=', $identificador)->exists() || !Storage::disk('public')->makeDirectory($identificador)) {
+        if (Proyecto::where('identificador', '=', $identificador)->exists() || !Storage::disk('public')->makeDirectory("geociomat/". $identificador)) {
             return back()->withInput()->with(["error_existe" => "Hubo un error al crear proyecto intente enviar los datos nuevamente de nuevo."]);
         } else {
-            $directorio_base = Storage::disk('public')->getDriver()->getAdapter()->getPathPrefix();
+            // $directorio_base = Storage::disk('public')->getDriver()->getAdapter()->getPathPrefix();
+            $directorio_base = storage_path("app/public/geocimat/");
             if (PHP_OS === "WINNT") $directorio_base = str_replace("/", "\\", $directorio_base);
         }
 
@@ -73,7 +81,7 @@ class ProyectoController extends Controller
         $proyecto->directorio_base = $directorio_base;
         $proyecto->descripcion = $request->descripcion;
         $proyecto->save();
-        // dd($proyecto);
+        dd($proyecto);
 
         return response()->json(['message' => 'Proyecto Almacenado']);
     }

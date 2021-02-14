@@ -1,9 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Geocimat;
 
-use App\Clasificacion;
+use App\Models\Geocimat\Clasificacion;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
 
 class ClasificacionController extends Controller
 {
@@ -14,7 +16,8 @@ class ClasificacionController extends Controller
      */
     public function index()
     {
-        //
+        $clasificaciones =  Clasificacion::all();
+        return response()->json(['clasificaciones' => $clasificaciones]);
     }
 
     /**
@@ -35,7 +38,20 @@ class ClasificacionController extends Controller
      */
     public function store(Request $request)
     {
+        
         //
+        
+        try {
+            $clasificacion  = new Clasificacion;
+            $clasificacion->nombre = $request->nombre;
+            $clasificacion->material_color = $request->material_color;
+            $clasificacion->visible = $request->visible;
+            $clasificacion->save();
+            return response()->json(["message"=>"Clasificacion almacenado con exito"]);
+        } catch (\Exception $e) {
+            return response()->json(["message" => "Ocurrio un error ". $e->getMessage()]);
+        }
+        
     }
 
     /**
