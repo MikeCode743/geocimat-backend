@@ -23,7 +23,7 @@ class ProyectoController extends Controller
      */
     public function index()
     {
-        $proyecto = Proyecto::all();
+        $proyecto = Proyecto::select("identificador","nombre")->get();
         // dd($proyecto);
         return response()->json(['proyecto' => $proyecto]);
     }
@@ -46,10 +46,9 @@ class ProyectoController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request);
+        // dd($request);
 
         //REEMPLAZA ESPACION Y CARACTERES DE ESPACIO POR GUION 
-
         $titulo = preg_replace('/\s+/', ' ', $request->nombre);
         $titulo = str_replace(" ", "-", $titulo);
 
@@ -64,7 +63,7 @@ class ProyectoController extends Controller
 
         //VALIDACION DE DIRECTORIO Y NOMBRE DUPLICADO
         if (Proyecto::where('identificador', '=', $identificador)->exists() || !Storage::disk('public')->makeDirectory("geociomat/". $identificador)) {
-            return back()->withInput()->with(["error_existe" => "Hubo un error al crear proyecto intente enviar los datos nuevamente de nuevo."]);
+            return response()->json(['message' => "Hubo un error al crear proyecto intente enviar los datos nuevamente de nuevo."]);
         } else {
             // $directorio_base = Storage::disk('public')->getDriver()->getAdapter()->getPathPrefix();
             $directorio_base = storage_path("app/public/geocimat/");
@@ -81,7 +80,7 @@ class ProyectoController extends Controller
         $proyecto->directorio_base = $directorio_base;
         $proyecto->descripcion = $request->descripcion;
         $proyecto->save();
-        dd($proyecto);
+        // dd($proyecto);
 
         return response()->json(['message' => 'Proyecto Almacenado']);
     }

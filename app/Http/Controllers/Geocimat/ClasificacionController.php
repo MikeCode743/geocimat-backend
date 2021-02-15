@@ -38,20 +38,21 @@ class ClasificacionController extends Controller
      */
     public function store(Request $request)
     {
-        
         //
-        
         try {
             $clasificacion  = new Clasificacion;
             $clasificacion->nombre = $request->nombre;
             $clasificacion->material_color = $request->material_color;
             $clasificacion->visible = $request->visible;
             $clasificacion->save();
-            return response()->json(["message"=>"Clasificacion almacenado con exito"]);
+
+            return response()->json([
+                "message" => "Clasificacion almacenado con exito",
+                "clasificacion" => $clasificacion
+            ]);
         } catch (\Exception $e) {
-            return response()->json(["message" => "Ocurrio un error ". $e->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
         }
-        
     }
 
     /**
@@ -83,9 +84,18 @@ class ClasificacionController extends Controller
      * @param  \App\Clasificacion  $clasificacion
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Clasificacion $clasificacion)
+    public function update(Request $request)
     {
-        //
+        try {
+            if (Clasificacion::where("id", "=", $request->id)->update(["nombre" => $request->nombre, "material_color" => $request->material_color])) {
+                return response()->json(["message" => "Clasificacion actualizada"]);
+            } else {
+                return response()->json(["message" => "No se encontro la clasificacion"]);
+            }
+        } catch (\Exception $e) {
+            //throw $th;
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+        }
     }
 
     /**
@@ -94,8 +104,17 @@ class ClasificacionController extends Controller
      * @param  \App\Clasificacion  $clasificacion
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Clasificacion $clasificacion)
+    public function destroy(Request $request)
     {
-        //
+        try {
+            if (Clasificacion::where("id", "=", $request->id)->update(["visible" => $request->visible])) {
+                return response()->json(["message" => "Clasificacion actualizada"]);
+            } else {
+                return response()->json(["message" => "No se encontro la clasificacion"]);
+            }
+        } catch (\Exception $e) {
+            //throw $th;
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+        }
     }
 }

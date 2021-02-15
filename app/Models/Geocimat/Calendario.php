@@ -4,10 +4,10 @@ namespace App\Models\Geocimat;
 
 use Illuminate\Database\Eloquent\Model;
 
-class EstadoVisita extends Model
+class Calendario extends Model
 {
-    
-    protected $table = 'geo_estado_visita';
+    //
+    protected $table = 'geo_calendario';
     protected $primaryKey = 'id';
     public $timestamps = false;
 }

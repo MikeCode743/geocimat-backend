@@ -17,6 +17,8 @@ class EstadoVisitaController extends Controller
     public function index()
     {
         //
+        $estadoVisita = EstadoVisita::all();
+        return response()->json(["estadovisita"=>$estadoVisita]);
     }
 
     /**
@@ -38,6 +40,18 @@ class EstadoVisitaController extends Controller
     public function store(Request $request)
     {
         //
+        try {
+            $estadoVisita  = new EstadoVisita;
+            $estadoVisita->nombre = $request->nombre;
+            $estadoVisita->material_color = $request->material_color;
+            $estadoVisita->visible = $request->visible;
+            $estadoVisita->save();
+
+            return response()->json(["message" => "Estado de visita almacenado con exito", "estadovisita" => $estadoVisita]);
+
+        } catch (\Exception $th) {
+            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()]);
+        }
     }
 
     /**
@@ -69,9 +83,19 @@ class EstadoVisitaController extends Controller
      * @param  \App\Models\Geocimat\EstadoVisita  $estadoVisita
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, EstadoVisita $estadoVisita)
+    public function update(Request $request)
     {
         //
+        try {
+            if (EstadoVisita::where("id", "=", $request->id)->update(["nombre" => $request->nombre, "material_color" => $request->material_color])) {
+                return response()->json(["message" => "Estado de Visita actualizada"]);
+            } else {
+                return response()->json(["message" => "No se encontro la estado de visita"]);
+            }
+        } catch (\Exception $e) {
+            //throw $th;
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+        }
     }
 
     /**
@@ -80,8 +104,18 @@ class EstadoVisitaController extends Controller
      * @param  \App\Models\Geocimat\EstadoVisita  $estadoVisita
      * @return \Illuminate\Http\Response
      */
-    public function destroy(EstadoVisita $estadoVisita)
+    public function destroy(Request $request)
     {
         //
+        try {
+            if (EstadoVisita::where("id", "=", $request->id)->update(["visible" => $request->visible])) {
+                return response()->json(["message" => "Estado actualizada"]);
+            } else {
+                return response()->json(["message" => "No se encontro la estado"]);
+            }
+        } catch (\Exception $e) {
+            //throw $th;
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+        }
     }
 }
