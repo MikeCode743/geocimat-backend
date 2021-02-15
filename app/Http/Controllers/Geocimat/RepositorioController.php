@@ -13,6 +13,7 @@ use App\Http\Controllers\Controller;
 
 class RepositorioController extends Controller
 {
+    protected $geocimat = 'geocimat/';
 
     //Estas funciones deben ir en un archivo aparte
     function getFileList($path)
@@ -52,8 +53,6 @@ class RepositorioController extends Controller
 
     function getDirectory($path)
     {
-        // $proyecto = collect($this->getFileList($path));
-        // $proyecto = $proyecto->merge($this->getSubDirectory($path));
         $proyecto = collect($this->getSubDirectory($path));
         $proyecto = $proyecto->merge($this->getFileList($path));
         return  $proyecto;
@@ -67,8 +66,8 @@ class RepositorioController extends Controller
      */
     public function index($id)
     {
-        if (File::exists(Storage::disk('public')->path('/') . $id)) {
-            return response()->json(['directorio' => $this->getDirectory($id), 'request' => $id]);
+        if (File::exists(Storage::disk('public')->path('/') . $this->geocimat . $id)) {
+            return response()->json(['directorio' => $this->getDirectory($this->geocimat . $id), 'request' => $id]);
         }
         return response()->json(['mensaje' => 'Este directorio no existe', 'directorio' => []]);
     }
