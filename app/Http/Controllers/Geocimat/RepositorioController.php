@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Geocimat;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
+use App\Http\Controllers\Controller;
+
 
 class RepositorioController extends Controller
 {
