@@ -107,25 +107,27 @@ class RepositorioController extends Controller
     public function destroy(Request $request)
     {
         $validated = $request->validate([
-            'nodoPadre' => 'required',
-            'folder' => 'required',
+            'nodo' => 'required',
+            'elemento' => 'required',
         ]);
 
-        $subcarpeta = $this->geocimat . $validated['nodoPadre'] . '/' . $validated['folder'];
-        if (!Storage::disk('public')->exists($subcarpeta)) {
-            return response()->json(['mensaje' => 'Directorio no encontrado'], 404);
+        $nodoPadre = $this->geocimat . $validated['nodoPadre'];
+        if (!Storage::disk('public')->exists($nodoPadre)) {
+            return response()->json(['mensaje' => 'Directorio no encontrado.'], 404);
         }
 
-        $directorio = Storage::disk('public')->deleteDirectory($subcarpeta);
-        if ($directorio) {
-            return response()->json([
-                'directorio' => 'Elemento eliminado.'
-            ]);
+        $elementos = $validated['elemento'];
+        foreach ($elementos as $elemento) {
+            Storage::disk('public')->deleteDirectory($elemento);
         }
-
         return response()->json([
-            'directorio' => 'Error eliminar el directorio'
-        ], 404);
+            'mensaje' => 'Elemento eliminado.'
+        ]);
+
+
+        // return response()->json([
+        //     'directorio' => 'Error eliminar el directorio'
+        // ], 404);
     }
 
 
