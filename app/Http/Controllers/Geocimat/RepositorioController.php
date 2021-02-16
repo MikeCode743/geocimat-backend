@@ -111,8 +111,8 @@ class RepositorioController extends Controller
             'elemento' => 'required',
         ]);
 
-        $nodoPadre = $this->geocimat . $validated['nodoPadre'];
-        if (!Storage::disk('public')->exists($nodoPadre)) {
+        $nodo = $this->geocimat . $validated['nodo'];
+        if (!Storage::disk('public')->exists($nodo)) {
             return response()->json(['mensaje' => 'Directorio no encontrado.'], 404);
         }
 
