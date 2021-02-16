@@ -99,9 +99,9 @@ class RepositorioController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Store a newly created resource in storage.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
@@ -130,6 +130,49 @@ class RepositorioController extends Controller
         // ], 404);
     }
 
+
+    /**
+     * Download file or zip.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function download(Request $request)
+    {
+        $validated = $request->validate([
+            'nodo' => 'required',
+            'elemento' => 'required',
+        ]);
+
+        return response()->download(asset($validated['elemento'][0]));
+
+
+        // $nodo = $this->geocimat . $validated['nodo'];
+        // if (!Storage::disk('public')->exists($nodo)) {
+        //     return response()->json(['mensaje' => 'Directorio no encontrado.'], 404);
+        // }
+
+        // $zip_file =  $validated['nodo'] . '-' . Str::random(5) . '.zip';
+        // $zip = new \ZipArchive();
+        // $zip->open(public_path($zip_file), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        // $elementos = $validated['elemento'];
+        // foreach ($elementos as $elemento) {
+        //     $name = basename($elemento);
+        //     $zip->addFile(storage_path($elemento),  $name);
+        // }
+        // $zip->close();
+
+        // return response()->download(public_path($zip_file), $zip_file);
+
+        // return response()->json([
+        //     'mensaje' => 'Elemento eliminado.'
+        // ]);
+
+
+        // return response()->json([
+        //     'directorio' => 'Error eliminar el directorio'
+        // ], 404);
+    }
 
     /**
      * Store a newly created resource in storage.
