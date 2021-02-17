@@ -23,9 +23,14 @@ class ProyectoController extends Controller
      */
     public function index()
     {
-        $proyecto = Proyecto::select("identificador","nombre")->get();
-        // dd($proyecto);
-        return response()->json(['proyecto' => $proyecto]);
+        try {
+            $proyecto = Proyecto::select("identificador","nombre")->orderBy('fecha_creado', 'desc')->get();
+            // dd($proyecto);
+            return response()->json(['proyecto' => $proyecto]);
+        } catch (\Exception $th) {
+            //throw $th;
+            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()]);
+        }
     }
 
     /**

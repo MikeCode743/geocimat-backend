@@ -16,8 +16,12 @@ class ClasificacionController extends Controller
      */
     public function index()
     {
-        $clasificaciones =  Clasificacion::all();
-        return response()->json(['clasificaciones' => $clasificaciones]);
+        try {
+            $clasificaciones =  Clasificacion::all();
+            return response()->json(['clasificaciones' => $clasificaciones]);
+        } catch (\Exception $th) {
+            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()]);
+        }
     }
 
     /**
