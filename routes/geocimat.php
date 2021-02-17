@@ -11,6 +11,9 @@
 |
 */
 
+Route::prefix('repositorio')->group(function () {
+    Route::post('/descargar', 'RepositorioController@downloadFile');
+});
 
 Route::group(['middleware' => 'cors'], function () {
 
@@ -18,11 +21,10 @@ Route::group(['middleware' => 'cors'], function () {
         return view('geocimat.index');
     });
 
-
     Route::prefix('repositorio')->group(function () {
         Route::get('/mostrar/{id}', 'RepositorioController@index');
         Route::post('/crear', 'RepositorioController@store');
-        Route::post('/descargar', 'RepositorioController@download');
+        // Route::get('/descargar', 'RepositorioController@downloadFile');
         Route::delete('/destruir', 'RepositorioController@destroy');
         Route::post('/almacenar', 'RepositorioController@upload');
     });
