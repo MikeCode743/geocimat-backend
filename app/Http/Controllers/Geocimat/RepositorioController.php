@@ -117,17 +117,11 @@ class RepositorioController extends Controller
         }
 
         $elementos = $validated['elemento'];
-        foreach ($elementos as $elemento) {
-            Storage::disk('public')->deleteDirectory($elemento);
-        }
+        Storage::disk('public')->delete($elementos);
+        Storage::disk('public')->deleteDirectory($elementos[0]);
         return response()->json([
             'mensaje' => 'Elemento eliminado.'
         ]);
-
-
-        // return response()->json([
-        //     'directorio' => 'Error eliminar el directorio'
-        // ], 404);
     }
 
 
@@ -137,41 +131,24 @@ class RepositorioController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function download(Request $request)
+    public function downloadFile(Request $request)
     {
         $validated = $request->validate([
             'nodo' => 'required',
             'elemento' => 'required',
         ]);
-
-        return response()->download(asset($validated['elemento'][0]));
-
-
-        // $nodo = $this->geocimat . $validated['nodo'];
-        // if (!Storage::disk('public')->exists($nodo)) {
-        //     return response()->json(['mensaje' => 'Directorio no encontrado.'], 404);
-        // }
-
-        // $zip_file =  $validated['nodo'] . '-' . Str::random(5) . '.zip';
-        // $zip = new \ZipArchive();
-        // $zip->open(public_path($zip_file), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
-        // $elementos = $validated['elemento'];
-        // foreach ($elementos as $elemento) {
-        //     $name = basename($elemento);
-        //     $zip->addFile(storage_path($elemento),  $name);
-        // }
-        // $zip->close();
-
-        // return response()->download(public_path($zip_file), $zip_file);
-
-        // return response()->json([
-        //     'mensaje' => 'Elemento eliminado.'
-        // ]);
-
-
-        // return response()->json([
-        //     'directorio' => 'Error eliminar el directorio'
-        // ], 404);
+        $ruta = $validated["elemento"];
+        $storagePath = "/app/public/" . $ruta;
+        if (is_dir(storage_path($storagePath))) {
+            return response()->json(['mensaje' => 'Este elemento no se puede descargar.'], 404);
+        }
+        if (Storage::disk('public')->exists($ruta) && is_file(storage_path($storagePath))) {
+            // return response()->json(["ruta" => asset(storage_path($storagePath))]);
+            // return response()->download(storage_path($storagePath));
+            return response()->json(["ruta" => Storage::disk('public')->url($storagePath)]);
+            return response()->json(["ruta" => asset("storage" . $storagePath)]);
+        }
+        return response()->json(['mensaje' => 'El elemento no existe.'], 404);
     }
 
     /**
@@ -182,13 +159,14 @@ class RepositorioController extends Controller
      */
     public function upload(Request $request)
     {
+        // dd($request);
         $request->validate([
-            'idProyecto' => 'required',
+            'id' => 'required',
             'directorio' => 'required',
             'archivos' => 'required',
         ]);
 
-        $idProyecto =  $request->idProyecto;
+        $id =  $request->idProyecto;
         $directorio =  $request->directorio;
         $archivos = $request->file('archivos');
         $paths  = [];
@@ -200,7 +178,7 @@ class RepositorioController extends Controller
             $storePath = Storage::disk('public')->putFileAs($directorio, $archivo, $archivoConExtension);
             $paths[] = $storePath;
         }
-        return response()->json(['message' => sizeof($paths) . 'Elemento agregado.']);
+        return response()->json(['mensaje' => sizeof($paths) . ' Elemento agregado.']);
     }
 
 
