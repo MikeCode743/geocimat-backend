@@ -17,8 +17,14 @@ class EstadoVisitaController extends Controller
     public function index()
     {
         //
-        $estadoVisita = EstadoVisita::all();
-        return response()->json(["estadovisita"=>$estadoVisita]);
+        try {
+            $estadoVisita = EstadoVisita::all();
+            return response()->json(["estadovisita"=>$estadoVisita]);
+        } catch (\Exception $th) {
+            //throw $th;
+            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()]);
+
+        }
     }
 
     /**
@@ -90,7 +96,7 @@ class EstadoVisitaController extends Controller
             if (EstadoVisita::where("id", "=", $request->id)->update(["nombre" => $request->nombre, "material_color" => $request->material_color])) {
                 return response()->json(["message" => "Estado de Visita actualizada"]);
             } else {
-                return response()->json(["message" => "No se encontro la estado de visita"]);
+                return response()->json(["message" => "No se encontro la estado de visita",406]);
             }
         } catch (\Exception $e) {
             //throw $th;
@@ -111,7 +117,7 @@ class EstadoVisitaController extends Controller
             if (EstadoVisita::where("id", "=", $request->id)->update(["visible" => $request->visible])) {
                 return response()->json(["message" => "Estado actualizada"]);
             } else {
-                return response()->json(["message" => "No se encontro la estado"]);
+                return response()->json(["message" => "No se encontro la estado",406]);
             }
         } catch (\Exception $e) {
             //throw $th;
