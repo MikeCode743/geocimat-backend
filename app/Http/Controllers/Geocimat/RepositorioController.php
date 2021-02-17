@@ -3,18 +3,16 @@
 namespace App\Http\Controllers\Geocimat;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Controller;
 
 
 class RepositorioController extends Controller
 {
+    protected $geocimat = 'geocimat/';
 
-    //Estas funciones deben ir en un archivo aparte
     function getFileList($path)
     {
         $listadoArchivos = collect();
@@ -35,10 +33,9 @@ class RepositorioController extends Controller
     {
         $listadoCarpeta = collect();
         $directorios = Storage::disk('public')->directories($path);
-
         foreach ($directorios as $directorio) {
             $children = $this->getFileList($directorio);
-            $carpeta = explode('/', $directorio)[1];
+            $carpeta = array_reverse(explode('/', $directorio))[0];
             $listadoCarpeta->push([
                 'name' => $carpeta,
                 'id' => Str::random(30),
@@ -52,8 +49,6 @@ class RepositorioController extends Controller
 
     function getDirectory($path)
     {
-        // $proyecto = collect($this->getFileList($path));
-        // $proyecto = $proyecto->merge($this->getSubDirectory($path));
         $proyecto = collect($this->getSubDirectory($path));
         $proyecto = $proyecto->merge($this->getFileList($path));
         return  $proyecto;
@@ -67,10 +62,10 @@ class RepositorioController extends Controller
      */
     public function index($id)
     {
-        if (File::exists(Storage::disk('public')->path('/') . $id)) {
-            return response()->json(['directorio' => $this->getDirectory($id), 'request' => $id]);
+        if (File::exists(Storage::disk('public')->path('/') . $this->geocimat . $id)) {
+            return response()->json(['directorio' => $this->getDirectory($this->geocimat . $id), 'request' => $id]);
         }
-        return response()->json(['mensaje' => 'Este directorio no existe', 'directorio' => []]);
+        return response()->json(['mensaje' => 'El directorio no existe.', 'directorio' => []], 404);
     }
 
 
@@ -87,53 +82,97 @@ class RepositorioController extends Controller
             'folder' => 'required',
         ]);
 
-        if (!Storage::disk('public')->exists($validated['nodoPadre'])) {
-            return response()->json(['mensaje' => 'Proyecto no encontrado no existe'], 404);
+        if (!Storage::disk('public')->exists($this->geocimat . $validated['nodoPadre'])) {
+            return response()->json(['mensaje' => 'El directorio no existe.'], 404);
         }
 
-        $directorio = Storage::disk('public')->makeDirectory($validated['nodoPadre'] . '/' . $validated['folder']);
+        $directorio = Storage::disk('public')->makeDirectory($this->geocimat . $validated['nodoPadre'] . '/' . $validated['folder']);
         if ($directorio) {
             return response()->json([
-                'directorio' => 'Directorio creado'
+                'mensaje' => 'Directorio creado.'
             ]);
         }
 
         return response()->json([
-            'directorio' => 'No se pudo crear el directorio'
-        ]);
+            'mensaje' => 'No se pudo crear el directorio.'
+        ], 404);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Store a newly created resource in storage.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function destroy(Request $request)
     {
-        //Eliminar un nuevo directorio
         $validated = $request->validate([
-            'nodoPadre' => 'required',
-            'folder' => 'required',
+            'nodo' => 'required',
+            'elemento' => 'required',
         ]);
 
-        $subcarpeta = $validated['nodoPadre'] . '/' . $validated['folder'];
-        if (!Storage::disk('public')->exists($subcarpeta)) {
-            return response()->json(['mensaje' => 'Directorio no encontrado'], 404);
+        $nodo = $this->geocimat . $validated['nodo'];
+        if (!Storage::disk('public')->exists($nodo)) {
+            return response()->json(['mensaje' => 'Directorio no encontrado.'], 404);
         }
 
-        $directorio = Storage::disk('public')->deleteDirectory($subcarpeta);
-        if ($directorio) {
-            return response()->json([
-                'directorio' => 'Directorio eliminado'
-            ]);
+        $elementos = $validated['elemento'];
+        foreach ($elementos as $elemento) {
+            Storage::disk('public')->deleteDirectory($elemento);
         }
-
         return response()->json([
-            'directorio' => 'No se pudo eliminar el directorio'
+            'mensaje' => 'Elemento eliminado.'
         ]);
+
+
+        // return response()->json([
+        //     'directorio' => 'Error eliminar el directorio'
+        // ], 404);
     }
 
+
+    /**
+     * Download file or zip.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function download(Request $request)
+    {
+        $validated = $request->validate([
+            'nodo' => 'required',
+            'elemento' => 'required',
+        ]);
+
+        return response()->download(asset($validated['elemento'][0]));
+
+
+        // $nodo = $this->geocimat . $validated['nodo'];
+        // if (!Storage::disk('public')->exists($nodo)) {
+        //     return response()->json(['mensaje' => 'Directorio no encontrado.'], 404);
+        // }
+
+        // $zip_file =  $validated['nodo'] . '-' . Str::random(5) . '.zip';
+        // $zip = new \ZipArchive();
+        // $zip->open(public_path($zip_file), \ZipArchive::CREATE | \ZipArchive::OVERWRITE);
+        // $elementos = $validated['elemento'];
+        // foreach ($elementos as $elemento) {
+        //     $name = basename($elemento);
+        //     $zip->addFile(storage_path($elemento),  $name);
+        // }
+        // $zip->close();
+
+        // return response()->download(public_path($zip_file), $zip_file);
+
+        // return response()->json([
+        //     'mensaje' => 'Elemento eliminado.'
+        // ]);
+
+
+        // return response()->json([
+        //     'directorio' => 'Error eliminar el directorio'
+        // ], 404);
+    }
 
     /**
      * Store a newly created resource in storage.
@@ -143,8 +182,7 @@ class RepositorioController extends Controller
      */
     public function upload(Request $request)
     {
-
-        $validated = $request->validate([
+        $request->validate([
             'idProyecto' => 'required',
             'directorio' => 'required',
             'archivos' => 'required',
@@ -162,7 +200,7 @@ class RepositorioController extends Controller
             $storePath = Storage::disk('public')->putFileAs($directorio, $archivo, $archivoConExtension);
             $paths[] = $storePath;
         }
-        return response()->json(['message' => sizeof($paths) . ' Archivo Agregado']);
+        return response()->json(['message' => sizeof($paths) . 'Elemento agregado.']);
     }
 
 

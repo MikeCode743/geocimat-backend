@@ -22,6 +22,7 @@ Route::group(['middleware' => 'cors'], function () {
     Route::prefix('repositorio')->group(function () {
         Route::get('/mostrar/{id}', 'RepositorioController@index');
         Route::post('/crear', 'RepositorioController@store');
+        Route::post('/descargar', 'RepositorioController@download');
         Route::delete('/destruir', 'RepositorioController@destroy');
         Route::post('/almacenar', 'RepositorioController@upload');
     });
@@ -51,6 +52,4 @@ Route::group(['middleware' => 'cors'], function () {
         Route::post('/modificar', 'CalendarioController@update');
         Route::post('/destruir', 'CalendarioController@destroy');
     });
-
 });
-
