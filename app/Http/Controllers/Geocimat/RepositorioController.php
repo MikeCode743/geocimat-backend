@@ -54,6 +54,18 @@ class RepositorioController extends Controller
         return  $proyecto;
     }
 
+    function getGalery($path)
+    {
+        return collect(Storage::disk('public')
+            ->allFiles($path))
+            ->map(function ($item) {
+                return asset('public/storage/' . $item);
+            })
+            ->filter(function ($value) {
+                return Str::endsWith($value, ['.jpg', '.jpeg', '.png']);
+            })->values();
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -63,7 +75,10 @@ class RepositorioController extends Controller
     public function index($id)
     {
         if (File::exists(Storage::disk('public')->path('/') . $this->geocimat . $id)) {
-            return response()->json(['directorio' => $this->getDirectory($this->geocimat . $id), 'request' => $id]);
+            return response()->json([
+                'directorio' => $this->getDirectory($this->geocimat . $id),
+                'galeria' => $this->getGalery($this->geocimat . $id),
+            ]);
         }
         return response()->json(['mensaje' => 'El directorio no existe.', 'directorio' => []], 404);
     }
