@@ -59,10 +59,13 @@ class RepositorioController extends Controller
         return collect(Storage::disk('public')
             ->allFiles($path))
             ->map(function ($item) {
-                return asset('public/storage/' . $item);
+                return collect([
+                    "id" => Str::random(),
+                    "url" => asset('public/storage/' . $item)
+                ]);
             })
             ->filter(function ($value) {
-                return Str::endsWith($value, ['.jpg', '.jpeg', '.png']);
+                return Str::endsWith($value["url"], ['.jpg', '.jpeg', '.png']);
             })->values();
     }
 
