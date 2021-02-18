@@ -61,7 +61,7 @@ class RepositorioController extends Controller
             ->map(function ($item) {
                 return collect([
                     "id" => Str::random(),
-                    "url" => asset('public/storage/' . $item)
+                    "url" => asset('storage/' . $item)
                 ]);
             })
             ->filter(function ($value) {
