@@ -23,6 +23,7 @@ class RepositorioController extends Controller
                 'name' => $nombreArchivo,
                 'id' => Str::random(30),
                 'ruta' => $archivo,
+                "url" => asset('storage/' . $archivo),
                 'mime' => Storage::disk('public')->mimeType($archivo),
             ]);
         }
