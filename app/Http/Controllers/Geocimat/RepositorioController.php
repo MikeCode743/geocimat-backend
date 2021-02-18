@@ -41,6 +41,7 @@ class RepositorioController extends Controller
                 'id' => Str::random(30),
                 'children' => $children,
                 'ruta' => $directorio,
+                "url" => asset('storage/' . $directorio),
                 'mime' => 'folder',
             ]);
         }
