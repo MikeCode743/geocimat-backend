@@ -71,7 +71,6 @@ class RepositorioController extends Controller
             })->values();
     }
 
-
     /**
      * Display a listing of the resource.
      *
@@ -87,7 +86,6 @@ class RepositorioController extends Controller
         }
         return response()->json(['mensaje' => 'El directorio no existe.', 'directorio' => []], 404);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -144,7 +142,6 @@ class RepositorioController extends Controller
         ]);
     }
 
-
     /**
      * Download file or zip.
      *
@@ -200,7 +197,6 @@ class RepositorioController extends Controller
         }
         return response()->json(['mensaje' => sizeof($paths) . ' Elemento agregado.']);
     }
-
 
     function obtenerNombre($ruta, $nombre, $extension)
     {
