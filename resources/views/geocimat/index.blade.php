@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{{-- <!DOCTYPE html>
 <html lang="en">
    <head>
       <meta charset="utf-8">
@@ -21,8 +21,9 @@
       <script src="/geocimat/js/chunk-vendors.01547c8c.js"></script>
       <script src="/geocimat/js/app.932b43a0.js"></script>
    </body>
-</html>
-{{-- <!DOCTYPE html>
+</html> --}}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -44,4 +45,4 @@
     <script src="/js/chunk-vendors.b8e376f4.js"></script>
     <script src="/js/app.47439f01.js"></script>
 </body>
-</html> --}}
+</html>
