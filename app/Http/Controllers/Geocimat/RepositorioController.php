@@ -23,6 +23,7 @@ class RepositorioController extends Controller
                 'name' => $nombreArchivo,
                 'id' => Str::random(30),
                 'ruta' => $archivo,
+                "url" => asset('storage/' . $archivo),
                 'mime' => Storage::disk('public')->mimeType($archivo),
             ]);
         }
@@ -41,6 +42,7 @@ class RepositorioController extends Controller
                 'id' => Str::random(30),
                 'children' => $children,
                 'ruta' => $directorio,
+                "url" => asset('storage/' . $directorio),
                 'mime' => 'folder',
             ]);
         }
@@ -54,6 +56,21 @@ class RepositorioController extends Controller
         return  $proyecto;
     }
 
+    function getGalery($path)
+    {
+        return collect(Storage::disk('public')
+            ->allFiles($path))
+            ->map(function ($item) {
+                return collect([
+                    "id" => Str::random(),
+                    "url" => asset('storage/' . $item)
+                ]);
+            })
+            ->filter(function ($value) {
+                return Str::endsWith($value["url"], ['.jpg', '.jpeg', '.png']);
+            })->values();
+    }
+
 
     /**
      * Display a listing of the resource.
@@ -63,7 +80,10 @@ class RepositorioController extends Controller
     public function index($id)
     {
         if (File::exists(Storage::disk('public')->path('/') . $this->geocimat . $id)) {
-            return response()->json(['directorio' => $this->getDirectory($this->geocimat . $id), 'request' => $id]);
+            return response()->json([
+                'directorio' => $this->getDirectory($this->geocimat . $id),
+                'galeria' => $this->getGalery($this->geocimat . $id),
+            ]);
         }
         return response()->json(['mensaje' => 'El directorio no existe.', 'directorio' => []], 404);
     }
