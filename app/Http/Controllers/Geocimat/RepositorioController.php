@@ -149,8 +149,9 @@ class RepositorioController extends Controller
         $elementos = $validated['elemento'];
         Storage::disk('public')->delete($elementos);
         Storage::disk('public')->deleteDirectory($elementos[0]);
+        $mensaje = sizeof($elementos) <= 1 ? 'Elemento eliminado.' : count($elementos) . ' Elementos eliminados.';
         return response()->json([
-            'mensaje' => 'Elemento eliminado.'
+            'mensaje' => $mensaje
         ]);
     }
 
@@ -207,7 +208,9 @@ class RepositorioController extends Controller
             $storePath = Storage::disk('public')->putFileAs($directorio, $archivo, $archivoConExtension);
             $paths[] = $storePath;
         }
-        return response()->json(['mensaje' => sizeof($paths) . ' Elemento agregado.']);
+
+        $mensaje = sizeof($paths) <= 1 ? 'Elemento agregado.' : sizeof($paths) . ' Nuevos elementos.';
+        return response()->json(['mensaje' => $mensaje]);
     }
 
     function obtenerNombre($ruta, $nombre, $extension)
