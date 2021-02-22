@@ -20,13 +20,12 @@ class CalendarioController extends Controller
     {
         try {
             $calendario = DB::table('geo_calendario')
-            ->join('geo_proyecto', 'geo_calendario.identificador', '=', 'geo_proyecto.identificador')
-            ->join('geo_clasificacion', 'geo_clasificacion.id', '=', 'geo_proyecto.id_clasificacion')
-            ->join('geo_estado_visita', 'geo_estado_visita.id', '=', 'geo_calendario.id_estado')
-            ->select('geo_calendario.id', 'geo_calendario.descripcion', 'geo_calendario.fecha_inicio AS start', 'geo_calendario.fecha_fin AS end', 'geo_calendario.identificador AS name', 'geo_calendario.id_estado AS id_status', 'geo_proyecto.nombre as proyecto', 'geo_estado_visita.material_color AS materialColor', 'geo_clasificacion.nombre as clasificacion', 'geo_clasificacion.material_color as cla_material_color')
-            ->get();
+                ->join('geo_proyecto', 'geo_calendario.identificador', '=', 'geo_proyecto.identificador')
+                ->join('geo_clasificacion', 'geo_clasificacion.id', '=', 'geo_proyecto.id_clasificacion')
+                ->join('geo_estado_visita', 'geo_estado_visita.id', '=', 'geo_calendario.id_estado')
+                ->select('geo_calendario.id', 'geo_calendario.descripcion', 'geo_calendario.fecha_inicio AS start', 'geo_calendario.fecha_fin AS end', 'geo_calendario.identificador AS name', 'geo_calendario.id_estado AS id_status', 'geo_proyecto.nombre as proyecto', 'geo_estado_visita.material_color AS materialColor', 'geo_clasificacion.nombre as clasificacion', 'geo_clasificacion.material_color as cla_material_color')
+                ->get();
             $estadoVisita = EstadoVisita::select("id", "nombre", "material_color")->get();
-            //VALIDAR LUEGO POR USUARIOS
             $proyectos = Proyecto::select("nombre", "identificador")->get();
             return response()->json(["calendario" => $calendario, "estadoVisita" => $estadoVisita, "proyectos" => $proyectos]);
         } catch (\Throwable $th) {
@@ -62,7 +61,7 @@ class CalendarioController extends Controller
                 $calendario->identificador = $request->identificador;
                 $calendario->descripcion = $request->descripcion;
                 $calendario->save();
-                return response()->json(["message" => "Evento agregado al calendario","newDate"=>$calendario->id]);
+                return response()->json(["message" => "Evento agregado al calendario", "newDate" => $calendario->id]);
             }
             return response()->json(["message" => "Este proyecto no se encuentra en nuestros registros", 406]);
         } catch (\Exception $th) {
@@ -105,14 +104,12 @@ class CalendarioController extends Controller
         try {
             if (Calendario::Find($request->id) && EstadoVisita::Find($request->id_estado)) {
                 Calendario::where("id", "=", $request->id)->update(["id_estado" => $request->id_estado, "descripcion" => $request->descripcion]);
-                return response()->json(["message"=>"Evento Actualizado"]);
+                return response()->json(["message" => "Evento Actualizado"]);
             }
-            return response()->json(["message" => "El evento no se fue actualizado"],406);
-
+            return response()->json(["message" => "El evento no se fue actualizado"], 406);
         } catch (\Exception $th) {
             //throw $th;
-            return response()->json(["message" => "Ocurrio un error ". $th->getMessage()]);
-
+            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()]);
         }
     }
 

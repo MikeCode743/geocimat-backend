@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Controller;
-
+use App\Models\Geocimat\Proyecto;
+use Illuminate\Support\Facades\Auth;
 
 class RepositorioController extends Controller
 {
@@ -78,10 +79,21 @@ class RepositorioController extends Controller
      */
     public function index($id)
     {
+        //retornar campo categoria para detalle de poryecto
+        $user_id = Auth::id() ?? 1;
+        $proyecto = Proyecto::where('user_id', $user_id)
+            ->where('identificador', $id)
+            ->first();
+
+        if (!$proyecto) {
+            return response()->json(['mensaje' => 'Acceso denegado.', 'directorio' => []], 401);
+        }
+
         if (File::exists(Storage::disk('public')->path('/') . $this->geocimat . $id)) {
             return response()->json([
                 'directorio' => $this->getDirectory($this->geocimat . $id),
                 'galeria' => $this->getGalery($this->geocimat . $id),
+                'datos' => $proyecto
             ]);
         }
         return response()->json(['mensaje' => 'El directorio no existe.', 'directorio' => []], 404);

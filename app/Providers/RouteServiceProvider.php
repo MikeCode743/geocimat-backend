@@ -74,7 +74,7 @@ class RouteServiceProvider extends ServiceProvider
     }
 
     /**
-     * Define the "api" routes for the application.
+     * Define the "geocimat" routes for the application.
      *
      * These routes are typically stateless.
      *
@@ -83,7 +83,7 @@ class RouteServiceProvider extends ServiceProvider
     protected function mapGeocimatRoutes()
     {
         Route::prefix('geocimat')
-            ->middleware('api')
+            ->middleware('web')
             ->namespace($this->namespace . '\Geocimat')
             ->group(base_path('routes/geocimat.php'));
     }
