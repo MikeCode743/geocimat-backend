@@ -149,6 +149,14 @@ class RepositorioController extends Controller
         $elementos = $validated['elemento'];
         Storage::disk('public')->delete($elementos);
         Storage::disk('public')->deleteDirectory($elementos[0]);
+        // if (is_dir(storage_path($storagePath))) {
+        //     return response()->json(['mensaje' => 'Este elemento no se puede descargar.'], 404);
+        // }
+        // foreach ($elementos as $elemento) {
+        //     if (is_dir(storage_path("/app/public/" . $elemento))) {
+        //         Storage::disk('public')->deleteDirectory($elemento);
+        //     }
+        // }
         $mensaje = sizeof($elementos) <= 1 ? 'Elemento eliminado.' : count($elementos) . ' Elementos eliminados.';
         return response()->json([
             'mensaje' => $mensaje
@@ -189,7 +197,6 @@ class RepositorioController extends Controller
      */
     public function upload(Request $request)
     {
-        // dd($request);
         $request->validate([
             'id' => 'required',
             'directorio' => 'required',
