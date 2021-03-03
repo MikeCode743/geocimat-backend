@@ -21,12 +21,19 @@ class ProyectoController extends Controller
      */
     public function index()
     {
-        $user_id = Auth::id() ?? 1;
+        $user_id = Auth::id();
         try {
-            $proyectos = Proyecto::where('user_id', $user_id)
-                ->select("identificador", "nombre")
-                ->orderBy('fecha_creado', 'desc')
-                ->get();
+
+            if ($this->pj_list($user_id)) {
+                $proyectos = Proyecto::select("identificador", "nombre")
+                    ->orderBy('fecha_creado', 'desc')
+                    ->get();
+            } else {
+                $proyectos = Proyecto::where('user_id', $user_id)
+                    ->select("identificador", "nombre")
+                    ->orderBy('fecha_creado', 'desc')
+                    ->get();
+            }
 
             $permisos = Administracion::where('user_id', $user_id)
                 ->select("pj_list", "admin_panel")
@@ -72,6 +79,20 @@ class ProyectoController extends Controller
         $proyecto->save();
 
         return response()->json(['mensaje' => 'Proyecto Almacenado.']);
+    }
+
+    /**
+     * Verifica el permiso de listado completo.
+     *
+     * @param  Auth::id 
+     * @return Boolean
+     */
+    public function pj_list($user_id)
+    {
+        $pj_list = true;
+        if (Administracion::where('user_id', $user_id)->where("pj_list", $pj_list)->value("pj_list")) {
+            return true;
+        } else return false;
     }
 }
 
