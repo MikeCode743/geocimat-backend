@@ -21,7 +21,7 @@ class CalendarioController extends Controller
     public function index()
     {
         try {
-            $user_id = Auth::id();
+            $user_id = Auth::id() ?? 2;
             if ($this->pj_list($user_id)) {
 
                 $calendario = DB::table('geo_calendario')
@@ -45,18 +45,8 @@ class CalendarioController extends Controller
             $estadoVisita = EstadoVisita::select("id", "nombre", "material_color")->get();
             return response()->json(["calendario" => $calendario, "estadoVisita" => $estadoVisita, "proyectos" => $proyectos]);
         } catch (\Throwable $th) {
-            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()], 500);
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -79,33 +69,10 @@ class CalendarioController extends Controller
                 $calendario->save();
                 return response()->json(["message" => "Evento agregado al calendario", "newDate" => $calendario->id]);
             }
-            return response()->json(["message" => "Este proyecto no se encuentra en nuestros registros", 406]);
+            return response()->json(["message" => "Este proyecto no se encuentra en nuestros registros", 404]);
         } catch (\Exception $th) {
-            //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()], 500);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Geocimat\Calendario  $calendario
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Calendario $calendario)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Geocimat\Calendario  $calendario
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Calendario $calendario)
-    {
-        //
     }
 
     /**
@@ -122,10 +89,9 @@ class CalendarioController extends Controller
                 Calendario::where("id", "=", $request->id)->update(["id_estado" => $request->id_estado, "descripcion" => $request->descripcion]);
                 return response()->json(["message" => "Evento Actualizado"]);
             }
-            return response()->json(["message" => "El evento no se fue actualizado"], 406);
+            return response()->json(["message" => "El evento no se fue actualizado"], 404);
         } catch (\Exception $th) {
-            //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()], 500);
         }
     }
 
@@ -137,16 +103,14 @@ class CalendarioController extends Controller
      */
     public function destroy(Request $request)
     {
-        //
         try {
             if (Calendario::Find($request->id)) {
                 Calendario::where("id", "=", $request->id)->delete();
                 return response()->json(["message" => "Evento eliminado"]);
             }
-            return response()->json(["message" => "El evento no se fue eliminado"], 406);
+            return response()->json(["message" => "El evento no se fue eliminado"], 404);
         } catch (\Exception $th) {
-            //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()], 500);
         }
     }
 

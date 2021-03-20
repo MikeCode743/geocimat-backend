@@ -16,25 +16,13 @@ class EstadoVisitaController extends Controller
      */
     public function index()
     {
-        //
         try {
             $estadoVisita = EstadoVisita::all();
             return response()->json(["estadovisita"=>$estadoVisita]);
         } catch (\Exception $th) {
-            //throw $th;
-            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()], 500);
 
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -45,7 +33,6 @@ class EstadoVisitaController extends Controller
      */
     public function store(Request $request)
     {
-        //
         try {
             $estadoVisita  = new EstadoVisita;
             $estadoVisita->nombre = $request->nombre;
@@ -54,32 +41,9 @@ class EstadoVisitaController extends Controller
             $estadoVisita->save();
 
             return response()->json(["message" => "Estado de visita almacenado con exito", "estadovisita" => $estadoVisita]);
-
         } catch (\Exception $th) {
-            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $th->getMessage()], 500);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Geocimat\EstadoVisita  $estadoVisita
-     * @return \Illuminate\Http\Response
-     */
-    public function show(EstadoVisita $estadoVisita)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Geocimat\EstadoVisita  $estadoVisita
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(EstadoVisita $estadoVisita)
-    {
-        //
     }
 
     /**
@@ -96,11 +60,10 @@ class EstadoVisitaController extends Controller
             if (EstadoVisita::where("id", "=", $request->id)->update(["nombre" => $request->nombre, "material_color" => $request->material_color])) {
                 return response()->json(["message" => "Estado de Visita actualizada"]);
             } else {
-                return response()->json(["message" => "No se encontro la estado de visita",406]);
+                return response()->json(["message" => "No se encontro la estado de visita",404]);
             }
         } catch (\Exception $e) {
-            //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()],500);
         }
     }
 
@@ -112,16 +75,14 @@ class EstadoVisitaController extends Controller
      */
     public function destroy(Request $request)
     {
-        //
         try {
             if (EstadoVisita::where("id", "=", $request->id)->update(["visible" => $request->visible])) {
                 return response()->json(["message" => "Estado actualizada"]);
             } else {
-                return response()->json(["message" => "No se encontro la estado",406]);
+                return response()->json(["message" => "No se encontro la estado",404]);
             }
         } catch (\Exception $e) {
-            //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()],500);
         }
     }
 }

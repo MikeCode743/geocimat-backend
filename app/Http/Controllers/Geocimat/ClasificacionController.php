@@ -20,18 +20,8 @@ class ClasificacionController extends Controller
             $clasificaciones =  Clasificacion::all();
             return response()->json(['clasificaciones' => $clasificaciones]);
         } catch (\Exception $th) {
-            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()]);
+            return response()->json(['message' => "Ocurrio un error " . $th->getMessage()],500);
         }
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
     }
 
     /**
@@ -42,7 +32,6 @@ class ClasificacionController extends Controller
      */
     public function store(Request $request)
     {
-        //
         try {
             $clasificacion  = new Clasificacion;
             $clasificacion->nombre = $request->nombre;
@@ -50,35 +39,10 @@ class ClasificacionController extends Controller
             $clasificacion->visible = $request->visible;
             $clasificacion->save();
 
-            return response()->json([
-                "message" => "Clasificacion almacenado con exito",
-                "clasificacion" => $clasificacion
-            ]);
+            return response()->json([ "message" => "Clasificacion almacenado con exito", "clasificacion" => $clasificacion ]);
         } catch (\Exception $e) {
-            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()],500);
         }
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Clasificacion  $clasificacion
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Clasificacion $clasificacion)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Clasificacion  $clasificacion
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Clasificacion $clasificacion)
-    {
-        //
     }
 
     /**
@@ -94,11 +58,11 @@ class ClasificacionController extends Controller
             if (Clasificacion::where("id", "=", $request->id)->update(["nombre" => $request->nombre, "material_color" => $request->material_color])) {
                 return response()->json(["message" => "Clasificacion actualizada"]);
             } else {
-                return response()->json(["message" => "No se encontro la clasificacion"]);
+                return response()->json(["message" => "No se encontro la clasificacion"],404);
             }
         } catch (\Exception $e) {
             //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()],500);
         }
     }
 
@@ -114,11 +78,10 @@ class ClasificacionController extends Controller
             if (Clasificacion::where("id", "=", $request->id)->update(["visible" => $request->visible])) {
                 return response()->json(["message" => "Clasificacion actualizada"]);
             } else {
-                return response()->json(["message" => "No se encontro la clasificacion"]);
+                return response()->json(["message" => "No se encontro la clasificacion"],404);
             }
         } catch (\Exception $e) {
-            //throw $th;
-            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()]);
+            return response()->json(["message" => "Ocurrio un error " . $e->getMessage()],500);
         }
     }
 }

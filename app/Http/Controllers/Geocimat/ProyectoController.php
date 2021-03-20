@@ -21,9 +21,8 @@ class ProyectoController extends Controller
      */
     public function index()
     {
-        $user_id = Auth::id();
+        $user_id = Auth::id() ?? 2;
         try {
-
             if ($this->pj_list($user_id)) {
                 $proyectos = Proyecto::select("identificador", "nombre")
                     ->orderBy('fecha_creado', 'desc')
@@ -34,15 +33,11 @@ class ProyectoController extends Controller
                     ->orderBy('fecha_creado', 'desc')
                     ->get();
             }
-
             $permisos = Administracion::where('user_id', $user_id)
                 ->select("pj_list", "admin_panel")
                 ->get();
 
-            return response()->json([
-                'proyectos' => $proyectos,
-                'permisos' => $permisos
-            ]);
+            return response()->json([ 'proyectos' => $proyectos, 'permisos' => $permisos ]);
         } catch (\Exception $th) {
             return response()->json(['mensaje' => "Ocurrio un error " . $th->getMessage()], 500);
         }
@@ -95,11 +90,3 @@ class ProyectoController extends Controller
         } else return false;
     }
 }
-
-
-        // if (Proyecto::where('identificador', '=', $identificador)->exists() || !Storage::disk('public')->makeDirectory("geociomat/" . $identificador)) {
-        //     return response()->json(['message' => "Hubo un error al crear proyecto intente enviar los datos nuevamente de nuevo."]);
-        // } else {
-        //     $directorio_base = storage_path("app/public/geocimat/");
-        //     if (PHP_OS === "WINNT") $directorio_base = str_replace("/", "\\", $directorio_base);
-        // }

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Controller;
 use App\Models\Geocimat\Proyecto;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RepositorioController extends Controller
 {
@@ -79,10 +80,14 @@ class RepositorioController extends Controller
      */
     public function index($id)
     {
-        //retornar campo categoria para detalle de poryecto
+        //retornar campo categoria para detalle de proyecto
         $user_id = Auth::id() ?? 1;
-        $proyecto = Proyecto::where('user_id', $user_id)
+        $proyecto = DB::table('geo_proyecto')
+        ->join('geo_clasificacion', 'geo_proyecto,id_clasificacion', 'geo_clasificacion.id')
+        ->join('users', 'geo_proyecto,user_id', 'users.id')
+        ->select('geo_proyecto.*', 'geo_clasificacion.nombre', 'users.email', 'users.name')
             ->where('identificador', $id)
+            ->where('user_id', $user_id) 
             ->first();
 
         if (!$proyecto) {
@@ -115,17 +120,12 @@ class RepositorioController extends Controller
         if (!Storage::disk('public')->exists($this->geocimat . $validated['nodoPadre'])) {
             return response()->json(['mensaje' => 'El directorio no existe.'], 404);
         }
-
         $directorio = Storage::disk('public')->makeDirectory($this->geocimat . $validated['nodoPadre'] . '/' . $validated['folder']);
         if ($directorio) {
-            return response()->json([
-                'mensaje' => 'Directorio creado.'
-            ]);
+            return response()->json([ 'mensaje' => 'Directorio creado.' ]);
         }
 
-        return response()->json([
-            'mensaje' => 'No se pudo crear el directorio.'
-        ], 404);
+        return response()->json([ 'mensaje' => 'No se pudo crear el directorio.' ], 404);
     }
 
     /**
@@ -149,14 +149,7 @@ class RepositorioController extends Controller
         $elementos = $validated['elemento'];
         Storage::disk('public')->delete($elementos);
         Storage::disk('public')->deleteDirectory($elementos[0]);
-        // if (is_dir(storage_path($storagePath))) {
-        //     return response()->json(['mensaje' => 'Este elemento no se puede descargar.'], 404);
-        // }
-        // foreach ($elementos as $elemento) {
-        //     if (is_dir(storage_path("/app/public/" . $elemento))) {
-        //         Storage::disk('public')->deleteDirectory($elemento);
-        //     }
-        // }
+        
         $mensaje = sizeof($elementos) <= 1 ? 'Elemento eliminado.' : count($elementos) . ' Elementos eliminados.';
         return response()->json([
             'mensaje' => $mensaje
@@ -181,10 +174,8 @@ class RepositorioController extends Controller
             return response()->json(['mensaje' => 'Este elemento no se puede descargar.'], 404);
         }
         if (Storage::disk('public')->exists($ruta) && is_file(storage_path($storagePath))) {
-            // return response()->json(["ruta" => asset(storage_path($storagePath))]);
-            // return response()->download(storage_path($storagePath));
             return response()->json(["ruta" => Storage::disk('public')->url($storagePath)]);
-            return response()->json(["ruta" => asset("storage" . $storagePath)]);
+            // return response()->json(["ruta" => asset("storage" . $storagePath)]);
         }
         return response()->json(['mensaje' => 'El elemento no existe.'], 404);
     }
