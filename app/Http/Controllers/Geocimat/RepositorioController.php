@@ -85,7 +85,7 @@ class RepositorioController extends Controller
         $proyecto = DB::table('geo_proyecto')
         ->join('geo_clasificacion', 'geo_proyecto,id_clasificacion', 'geo_clasificacion.id')
         ->join('users', 'geo_proyecto,user_id', 'users.id')
-        ->select('geo_proyecto.*', 'geo_clasificacion.nombre', 'users.email', 'users.name')
+        ->select('geo_proyecto.identificador','geo_proyecto.nombre', 'geo_proyecto.descripcion', 'geo_clasificacion.nombre AS clasificacion', 'geo_clasificacion.material_color')
             ->where('identificador', $id)
             ->where('user_id', $user_id) 
             ->first();
