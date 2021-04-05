@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use App\Http\Controllers\Controller;
-use App\Models\Geocimat\Proyecto;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -80,18 +79,17 @@ class RepositorioController extends Controller
      */
     public function index($id)
     {
-        //retornar campo categoria para detalle de proyecto
-        $user_id = Auth::id() ?? 1;
+        $user_id = Auth::id();
         $proyecto = DB::table('geo_proyecto')
-        ->join('geo_clasificacion', 'geo_proyecto,id_clasificacion', 'geo_clasificacion.id')
-        ->join('users', 'geo_proyecto,user_id', 'users.id')
-        ->select('geo_proyecto.identificador','geo_proyecto.nombre', 'geo_proyecto.descripcion', 'geo_clasificacion.nombre AS clasificacion', 'geo_clasificacion.material_color')
+            ->join('geo_clasificacion', 'geo_proyecto.id_clasificacion', 'geo_clasificacion.id')
+            ->join('users', 'geo_proyecto.user_id', 'users.id')
+            ->select('geo_proyecto.identificador', 'geo_proyecto.nombre', 'geo_proyecto.descripcion', 'geo_clasificacion.nombre AS clasificacion', 'geo_clasificacion.material_color')
             ->where('identificador', $id)
-            ->where('user_id', $user_id) 
+            ->where('user_id', $user_id)
             ->first();
 
         if (!$proyecto) {
-            return response()->json(['mensaje' => 'Acceso denegado.', 'directorio' => []], 401);
+            return response()->json(['mensaje' => 'No tiene permisos para ver este proyecto.', 'directorio' => []], 404);
         }
 
         if (File::exists(Storage::disk('public')->path('/') . $this->geocimat . $id)) {
@@ -117,15 +115,20 @@ class RepositorioController extends Controller
             'folder' => 'required',
         ]);
 
+        if (strpbrk($validated['folder'], "\\/?%*:|\"<>")) {
+            return response()->json(['mensaje' => 'El nombre del proyecto debe contener solo valores alfanuméricos.'], 422);
+        }
+
         if (!Storage::disk('public')->exists($this->geocimat . $validated['nodoPadre'])) {
             return response()->json(['mensaje' => 'El directorio no existe.'], 404);
         }
+
         $directorio = Storage::disk('public')->makeDirectory($this->geocimat . $validated['nodoPadre'] . '/' . $validated['folder']);
         if ($directorio) {
-            return response()->json([ 'mensaje' => 'Directorio creado.' ]);
+            return response()->json(['mensaje' => 'Directorio creado.'], 201);
         }
 
-        return response()->json([ 'mensaje' => 'No se pudo crear el directorio.' ], 404);
+        return response()->json(['mensaje' => 'No se pudo crear el directorio.'], 422);
     }
 
     /**
@@ -149,7 +152,7 @@ class RepositorioController extends Controller
         $elementos = $validated['elemento'];
         Storage::disk('public')->delete($elementos);
         Storage::disk('public')->deleteDirectory($elementos[0]);
-        
+
         $mensaje = sizeof($elementos) <= 1 ? 'Elemento eliminado.' : count($elementos) . ' Elementos eliminados.';
         return response()->json([
             'mensaje' => $mensaje

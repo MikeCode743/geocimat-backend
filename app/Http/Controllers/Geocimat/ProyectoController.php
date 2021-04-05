@@ -21,7 +21,7 @@ class ProyectoController extends Controller
      */
     public function index()
     {
-        $user_id = Auth::id() ?? 2;
+        $user_id = Auth::id();
         try {
             if ($this->pj_list($user_id)) {
                 $proyectos = Proyecto::select("identificador", "nombre")
@@ -37,7 +37,7 @@ class ProyectoController extends Controller
                 ->select("pj_list", "admin_panel")
                 ->get();
 
-            return response()->json([ 'proyectos' => $proyectos, 'permisos' => $permisos ]);
+            return response()->json(['proyectos' => $proyectos, 'permisos' => $permisos]);
         } catch (\Exception $th) {
             return response()->json(['mensaje' => "Ocurrio un error " . $th->getMessage()], 500);
         }
@@ -51,29 +51,44 @@ class ProyectoController extends Controller
      */
     public function store(Request $request)
     {
-        $user_id = Auth::id() ?? 1;
-        $titulo = preg_replace('/\s+/', ' ', $request->nombre);
-        $titulo = str_replace(" ", "-", $titulo);
-        $identificador =  $titulo . "-" . Str::random(5);
-        $nuevo_directorio = Storage::disk('public')->makeDirectory($this->geocimat . $identificador);
+        $validated = (object) $request->validate([
+            'nombre' => 'required',
+            'id_clasificacion' => 'required|numeric',
+            'id_unidad' => 'required|numeric',
+            'fecha_creado' => 'required|date',
+            'longitud' => 'required|numeric',
+            'latitud' => 'required|numeric',
+            'descripcion' => 'nullable',
+        ], ['nombre.alpha_num' => 'Debe contener solo valores alfanumérico.']);
+
+        $user_id = Auth::id();
+        $nombre = $validated->nombre;
+
+        if (strpbrk($nombre, "\\/?%*:|\"<>")) {
+            return response()->json(['error' => 'El nombre del proyecto debe contener solo valores alfanuméricos.'], 422);
+        }
+
+        $identificador = $this->GenerarIdentificador($nombre);
+        $directorio_base = $this->geocimat . $identificador;
+        $nuevo_directorio = Storage::disk('public')->makeDirectory($directorio_base);
 
         if (!$nuevo_directorio) {
-            return response()->json(['mensaje' => 'Error al crear el directorio.'], 500);
+            return response()->json(['error' => 'No se pudo crear el directorio.'], 500);
         }
 
         $proyecto = new Proyecto;
+        $proyecto->user_id = $user_id;
         $proyecto->identificador = $identificador;
-        $proyecto->nombre = $titulo;
-        $proyecto->id_clasificacion = $request->id_clasificacion;
-        $proyecto->longitud = $request->longitud;
-        $proyecto->latitud = $request->latitud;
-        $proyecto->fecha_creado = date("Y-m-d");
-        $proyecto->directorio_base = $this->geocimat . $identificador;
-        $proyecto->descripcion = $request->descripcion;
-        $proyecto->user_id =  $user_id;
+        $proyecto->nombre = $nombre;
+        $proyecto->id_clasificacion = $validated->id_clasificacion;
+        // $proyecto->id_unidad = $validated->id_unidad;
+        $proyecto->longitud = $validated->longitud;
+        $proyecto->latitud = $validated->latitud;
+        $proyecto->fecha_creado = $validated->fecha_creado;
+        $proyecto->directorio_base = $directorio_base;
+        $proyecto->descripcion = $validated->descripcion;
         $proyecto->save();
-
-        return response()->json(['mensaje' => 'Proyecto Almacenado.']);
+        return response()->json(['mensaje' => 'Proyecto Almacenado.'], 201);
     }
 
     /**
@@ -85,8 +100,12 @@ class ProyectoController extends Controller
     public function pj_list($user_id)
     {
         $pj_list = true;
-        if (Administracion::where('user_id', $user_id)->where("pj_list", $pj_list)->value("pj_list")) {
-            return true;
-        } else return false;
+        return Administracion::where('user_id', $user_id)->where("pj_list", $pj_list)->value("pj_list");
+    }
+
+    private function GenerarIdentificador($nombreProyecto)
+    {
+        $titulo = preg_replace('/\s+/', ' ', $nombreProyecto);
+        return str_replace(" ", "-", $titulo) . "-" . Str::random(5);
     }
 }
