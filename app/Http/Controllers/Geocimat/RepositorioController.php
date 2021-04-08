@@ -79,11 +79,18 @@ class RepositorioController extends Controller
      */
     public function index($id)
     {
-        $user_id = Auth::id();
+        $user_id = Auth::id() ?? 1;
         $proyecto = DB::table('geo_proyecto')
             ->join('geo_clasificacion', 'geo_proyecto.id_clasificacion', 'geo_clasificacion.id')
             ->join('users', 'geo_proyecto.user_id', 'users.id')
-            ->select('geo_proyecto.identificador', 'geo_proyecto.nombre', 'geo_proyecto.descripcion', 'geo_clasificacion.nombre AS clasificacion', 'geo_clasificacion.material_color')
+            ->select(
+                'geo_proyecto.nombre',
+                'geo_proyecto.descripcion',
+                'geo_proyecto.latitud',
+                'geo_proyecto.longitud',
+                'geo_clasificacion.nombre AS categoria',
+                'geo_clasificacion.nombre AS unidad'
+            )
             ->where('identificador', $id)
             ->where('user_id', $user_id)
             ->first();
